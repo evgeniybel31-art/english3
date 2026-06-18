@@ -243,10 +243,10 @@ body {
 }
 .msg.ai { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; align-self: flex-start; }
 .msg.user { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
-.msg .trl { font-size: 12px; color: var(--muted); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); font-style: italic; }
-.msg .msg-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
-.msg .speak-msg { background: none; border: none; font-size: 16px; cursor: pointer; opacity: .6; padding: 2px; transition: opacity .2s; }
-.msg .speak-msg:active { opacity: 1; }
+.msg .msg-en { font-size: 15px; line-height: 1.5; }
+.msg .trl { font-size: 13px; color: #aaa; margin-top: 7px; padding-top: 7px; border-top: 1px solid rgba(255,255,255,.08); font-style: italic; line-height: 1.4; }
+.msg .speak-msg { background: rgba(108,99,255,.15); border: 1px solid rgba(108,99,255,.25); color: var(--accent); border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; padding: 5px 10px; margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; transition: background .2s; }
+.msg .speak-msg:active { background: rgba(108,99,255,.3); }
 
 .chat-row { display: flex; gap: 6px; align-items: flex-end; }
 .chat-in {
@@ -895,18 +895,21 @@ function addMsg(role, text, trl='') {
   S.chat.push({role,text,trl}); save(); renderChat();
 }
 
+// Озвучить сообщение по индексу (избегаем проблем с кавычками в onclick)
+function speakMsg(i) {
+  const m = S.chat[i];
+  if (m) speak(m.text.replace(/[^a-zA-Z\s',.!?]/g,''));
+}
+
 function renderChat() {
   const c = document.getElementById('chat-msgs');
   if (!c) return;
   c.innerHTML = S.chat.map((m, i) => {
     if (m.role === 'ai') {
-      const safe = m.text.replace(/'/g, '&#39;');
       return `<div class="msg ai">
-        <div>${m.text}</div>
+        <div class="msg-en">${m.text}</div>
         ${m.trl ? `<div class="trl">🇷🇺 ${m.trl}</div>` : ''}
-        <div class="msg-actions">
-          <button class="speak-msg" onclick="speak('${safe}')" title="Прослушать">🔊 Прослушать</button>
-        </div>
+        <button class="speak-msg" onclick="speakMsg(${i})">🔊 Прослушать</button>
       </div>`;
     }
     return `<div class="msg user">${m.text}</div>`;
@@ -988,11 +991,19 @@ STRICT RULES:
     const d = await res.json();
     const reply = d.choices?.[0]?.message?.content || 'Sorry, try again.';
 
-    // Parse ENGLISH: / RUSSIAN: format
-    const enMatch = reply.match(/ENGLISH:\s*(.+?)(?:\n|$)/i);
-    const ruMatch = reply.match(/RUSSIAN:\s*(.+?)(?:\n|$)/i);
-    const en = enMatch ? enMatch[1].trim() : reply.replace(/RUSSIAN:.*/is,'').trim();
-    const ru = ruMatch ? ruMatch[1].trim() : '';
+    // Robust parsing: try ENGLISH:/RUSSIAN: format first, then parentheses
+    let en = '', ru = '';
+    const enMatch = reply.match(/ENGLISH:\s*(.+?)(?:\nRUSSIAN:|$)/is);
+    const ruMatch = reply.match(/RUSSIAN:\s*(.+?)$/is);
+    if (enMatch && ruMatch) {
+      en = enMatch[1].trim();
+      ru = ruMatch[1].trim();
+    } else {
+      // fallback: parentheses like "Hello! (Привет!)"
+      const parens = reply.match(/\(([^\)]{2,})\)/);
+      en = reply.replace(/\([^\)]+\)/g,'').trim();
+      ru = parens ? parens[1].trim() : '';
+    }
 
     addMsg('ai', en, ru);
     // Автоозвучка нового сообщения
