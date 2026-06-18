@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English AI — Разговорный за 3 месяца</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --card: #1a1a24;
+    --card2: #22222f;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --green: #43e97b;
+    --yellow: #ffd93d;
+    --text: #f0f0f5;
+    --muted: #888;
+    --border: #2a2a3a;
+    --radius: 18px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  .nav { display: flex; justify-content: space-around; align-items: center; padding: 12px 16px; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .nav-btn { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 6px 10px; border-radius: 10px; transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .nav-btn span { font-size: 10px; }
+  .nav-btn.active { color: var(--accent); background: rgba(108,99,255,.15); }
+
+  /* SCREENS */
+  .screen { display: none; padding: 20px 16px 100px; max-width: 600px; margin: 0 auto; }
+  .screen.active { display: block; }
+
+  /* HOME */
+  .hero { text-align: center; padding: 24px 0 20px; }
+  .hero h1 { font-size: 26px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .streak-bar { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 12px 0; font-size: 14px; }
+  .streak-fire { font-size: 28px; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .stat-card { background: var(--card); border-radius: var(--radius); padding: 16px; text-align: center; border: 1px solid var(--border); }
+  .stat-card .val { font-size: 28px; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .big-btn { display: block; width: 100%; padding: 18px; border-radius: var(--radius); font-size: 17px; font-weight: 700; border: none; cursor: pointer; transition: transform .15s, box-shadow .15s; text-align: center; }
+  .big-btn:active { transform: scale(.97); }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #5a52d5); color: white; box-shadow: 0 4px 20px rgba(108,99,255,.4); margin-bottom: 12px; }
+  .btn-secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); margin-bottom: 12px; }
+  .progress-bar-wrap { background: var(--card2); border-radius: 99px; height: 8px; margin: 8px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width .5s; }
+  .progress-label { font-size: 12px; color: var(--muted); text-align: right; }
+  .section-title { font-size: 16px; font-weight: 700; margin: 20px 0 12px; }
+
+  /* LESSON / REVIEW */
+  .lesson-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .lesson-prog { font-size: 13px; color: var(--muted); }
+  .lesson-prog-bar { flex: 1; margin: 0 12px; height: 6px; background: var(--card2); border-radius: 99px; overflow: hidden; }
+  .lesson-prog-bar .fill { height: 100%; background: var(--green); transition: width .3s; border-radius: 99px; }
+
+  /* WORD CARD */
+  .word-card { background: var(--card); border-radius: 24px; padding: 24px; text-align: center; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 20px; position: relative; overflow: hidden; }
+  .word-card .category-tag { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .word-card .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 14px; margin-bottom: 16px; background: var(--card2); display: block; }
+  .word-card .emoji-fallback { font-size: 80px; line-height: 1; display: block; margin-bottom: 12px; }
+  .word-card .english-word { font-size: 36px; font-weight: 900; letter-spacing: -1px; }
+  .word-card .ipa { font-size: 16px; color: var(--muted); margin: 4px 0 10px; font-family: serif; }
+  .word-card .russian { font-size: 22px; color: var(--accent2); font-weight: 600; margin-bottom: 12px; }
+  .word-card .example { font-size: 14px; color: var(--muted); line-height: 1.6; padding: 10px 14px; background: var(--card2); border-radius: 10px; border-left: 3px solid var(--accent); text-align: left; }
+  .word-card .example .en { color: var(--text); font-weight: 500; }
+  .word-card .example .ru { color: var(--muted); font-size: 13px; }
+
+  .sound-btn { background: var(--accent); color: white; border: none; border-radius: 50%; width: 52px; height: 52px; font-size: 22px; cursor: pointer; margin: 12px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(108,99,255,.4); transition: transform .15s; }
+  .sound-btn:active { transform: scale(.9); }
+
+  /* CHOICES */
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .choice-btn { background: var(--card); border: 2px solid var(--border); color: var(--text); border-radius: 14px; padding: 14px 10px; font-size: 15px; cursor: pointer; transition: all .2s; text-align: center; }
+  .choice-btn:hover { border-color: var(--accent); }
+  .choice-btn.correct { border-color: var(--green); background: rgba(67,233,123,.15); color: var(--green); }
+  .choice-btn.wrong { border-color: var(--accent2); background: rgba(255,101,132,.15); color: var(--accent2); }
+
+  /* TYPE INPUT */
+  .type-wrap { margin-top: 16px; }
+  .type-input { width: 100%; padding: 14px 16px; background: var(--card2); border: 2px solid var(--border); border-radius: 14px; color: var(--text); font-size: 18px; text-align: center; outline: none; transition: border .2s; font-weight: 600; }
+  .type-input:focus { border-color: var(--accent); }
+  .type-input.correct { border-color: var(--green); background: rgba(67,233,123,.1); }
+  .type-input.wrong { border-color: var(--accent2); background: rgba(255,101,132,.1); }
+  .check-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: opacity .2s; }
+  .check-btn:active { opacity: .8; }
+
+  /* FEEDBACK */
+  .feedback { padding: 14px; border-radius: 14px; margin-top: 12px; font-weight: 600; text-align: center; font-size: 15px; }
+  .feedback.correct { background: rgba(67,233,123,.15); color: var(--green); border: 1px solid rgba(67,233,123,.3); }
+  .feedback.wrong { background: rgba(255,101,132,.15); color: var(--accent2); border: 1px solid rgba(255,101,132,.3); }
+  .next-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent), #5a52d5); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+
+  /* RESULTS */
+  .results { text-align: center; padding: 40px 20px; }
+  .results .trophy { font-size: 64px; margin-bottom: 16px; }
+  .results h2 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+  .results .score { font-size: 48px; font-weight: 900; color: var(--accent); }
+  .results p { color: var(--muted); margin-top: 8px; }
+  .xp-badge { display: inline-block; background: rgba(255,217,61,.15); color: var(--yellow); border: 1px solid rgba(255,217,61,.3); border-radius: 99px; padding: 6px 16px; font-size: 14px; font-weight: 700; margin-top: 12px; }
+
+  /* CHAT */
+  .chat-header { background: var(--card); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .chat-avatar { font-size: 32px; }
+  .chat-header-info h3 { font-size: 15px; font-weight: 700; }
+  .chat-header-info p { font-size: 12px; color: var(--muted); }
+  .chat-messages { min-height: 300px; max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 0; margin-bottom: 16px; }
+  .msg { max-width: 82%; padding: 12px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+  .msg.ai { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .msg.user { background: linear-gradient(135deg, var(--accent), #5a52d5); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .msg .translation { font-size: 12px; color: var(--muted); margin-top: 4px; font-style: italic; }
+  .chat-input-wrap { display: flex; gap: 8px; }
+  .chat-input { flex: 1; padding: 13px 16px; background: var(--card); border: 2px solid var(--border); border-radius: 14px; color: var(--text); font-size: 14px; outline: none; transition: border .2s; }
+  .chat-input:focus { border-color: var(--accent); }
+  .send-btn { background: var(--accent); color: white; border: none; border-radius: 14px; width: 48px; font-size: 20px; cursor: pointer; flex-shrink: 0; }
+  .mic-btn { background: var(--card2); color: var(--text); border: 2px solid var(--border); border-radius: 14px; width: 48px; font-size: 18px; cursor: pointer; flex-shrink: 0; transition: all .2s; }
+  .mic-btn.listening { background: rgba(255,101,132,.2); border-color: var(--accent2); color: var(--accent2); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  .words-hint { font-size: 12px; color: var(--muted); padding: 8px 12px; background: var(--card2); border-radius: 10px; margin-bottom: 10px; }
+  .api-setup { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+  .api-setup h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .api-setup p { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .api-input { width: 100%; padding: 12px 14px; background: var(--card2); border: 2px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px; outline: none; margin-bottom: 10px; }
+  .api-input:focus { border-color: var(--accent); }
+
+  /* PROGRESS SCREEN */
+  .week-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-bottom: 20px; }
+  .week-dot { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: var(--card2); color: var(--muted); border: 1px solid var(--border); cursor: pointer; }
+  .week-dot.done { background: rgba(67,233,123,.2); color: var(--green); border-color: rgba(67,233,123,.3); }
+  .week-dot.current { background: rgba(108,99,255,.2); color: var(--accent); border-color: var(--accent); }
+  .words-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .word-badge { background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; font-size: 13px; }
+  .word-badge.learned { border-color: rgba(67,233,123,.4); color: var(--green); background: rgba(67,233,123,.1); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--card); border: 1px solid var(--border); border-radius: 99px; padding: 10px 20px; font-size: 14px; font-weight: 600; opacity: 0; transition: all .3s; z-index: 999; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* SETTINGS */
+  .settings-group { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; border: 1px solid var(--border); }
+  .settings-group h3 { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row label { font-size: 15px; }
+  .settings-row input[type=text], .settings-row input[type=password] { background: var(--card2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; font-size: 13px; width: 180px; outline: none; }
+  .save-btn { width: 100%; padding: 13px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(108,99,255,.15); color: var(--accent); border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
+  .loading-dots::after { content: ''; animation: dots 1.2s infinite; }
+  @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+  .tip-card { background: linear-gradient(135deg, rgba(108,99,255,.15), rgba(255,101,132,.1)); border: 1px solid rgba(108,99,255,.3); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; font-size: 13px; line-height: 1.5; }
+  .tip-card strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showScreen('home')" id="nav-home">🏠<span>Главная</span></button>
+  <button class="nav-btn" onclick="showScreen('lesson')" id="nav-lesson">📚<span>Урок</span></button>
+  <button class="nav-btn" onclick="showScreen('review')" id="nav-review">🔁<span>Повтор</span></button>
+  <button class="nav-btn" onclick="showScreen('chat')" id="nav-chat">💬<span>AI Чат</span></button>
+  <button class="nav-btn" onclick="showScreen('progress')" id="nav-progress">📈<span>Прогресс</span></button>
+</nav>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="hero">
+    <h1>English AI</h1>
+    <p>Разговорный за 3 месяца • 25 мин/день</p>
+  </div>
+  <div class="streak-bar">
+    <span class="streak-fire">🔥</span>
+    <span id="streak-text">0 дней подряд</span>
+    <span class="badge" id="level-badge">Уровень 1</span>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="val" id="stat-words">0</div><div class="lbl">слов выучено</div></div>
+    <div class="stat-card"><div class="val" id="stat-xp">0</div><div class="lbl">XP очков</div></div>
+    <div class="stat-card"><div class="val" id="stat-day">1</div><div class="lbl">день</div></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="total-progress" style="width:0%"></div></div>
+  <div class="progress-label" id="progress-label">0 / 300 слов до разговорного уровня</div>
+
+  <div id="home-action" style="margin-top:20px"></div>
+
+  <div class="tip-card" id="daily-tip"></div>
+
+  <div class="section-title">Метод обучения</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="val">🧠</div><div class="lbl">SRS повторение</div></div>
+    <div class="stat-card"><div class="val">🖼️</div><div class="lbl">Визуальная память</div></div>
+    <div class="stat-card"><div class="val">🎙️</div><div class="lbl">AI разговор</div></div>
+  </div>
+</div>
+
+<!-- LESSON -->
+<div class="screen" id="screen-lesson">
+  <div id="lesson-content"></div>
+</div>
+
+<!-- REVIEW -->
+<div class="screen" id="screen-review">
+  <div id="review-content"></div>
+</div>
+
+<!-- CHAT -->
+<div class="screen" id="screen-chat">
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-header-info">
+      <h3>AI Учитель — Emma</h3>
+      <p>Говорит только словами, которые вы знаете</p>
+    </div>
+  </div>
+  <div id="chat-api-setup" style="display:none">
+    <div class="api-setup">
+      <div style="font-size:48px;margin-bottom:12px">🔑</div>
+      <h3>Нужен API ключ Claude</h3>
+      <p>Введите ваш Anthropic API ключ, чтобы разговаривать с AI учителем. Ключ хранится только в браузере.</p>
+      <input class="api-input" type="password" id="api-key-input" placeholder="sk-ant-...">
+      <button class="check-btn" onclick="saveApiKey()">Сохранить и начать</button>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px">Получить ключ: <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></p>
+    </div>
+  </div>
+  <div id="chat-interface" style="display:none">
+    <div class="words-hint" id="words-hint">📚 Доступные слова: загрузка...</div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-wrap">
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Говорить">🎤</button>
+      <input class="chat-input" id="chat-input" placeholder="Напишите по-английски..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="send-btn" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="screen" id="screen-progress">
+  <div class="hero" style="padding:16px 0 12px">
+    <h1 style="font-size:22px">Ваш прогресс</h1>
+  </div>
+  <div class="section-title">Недели обучения (12 недель = 3 месяца)</div>
+  <div class="week-grid" id="week-grid"></div>
+  <div class="section-title">Выученные слова</div>
+  <div class="words-list" id="learned-words-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== VOCABULARY DATABASE ====================
+const VOCAB = [
+  // WEEK 1: Greetings
+  {id:1,w:'hello',ru:'привет',e:'👋',ipa:'/həˈloʊ/',cat:'Приветствия',week:1,ex:'Hello! How are you?',ex_ru:'Привет! Как дела?',img:'greeting,wave'},
+  {id:2,w:'goodbye',ru:'пока',e:'🤚',ipa:'/ˌɡʊdˈbaɪ/',cat:'Приветствия',week:1,ex:'Goodbye! See you tomorrow.',ex_ru:'Пока! Увидимся завтра.',img:'farewell,wave'},
+  {id:3,w:'please',ru:'пожалуйста',e:'🙏',ipa:'/pliːz/',cat:'Приветствия',week:1,ex:'Can you help me, please?',ex_ru:'Вы можете мне помочь, пожалуйста?',img:'please,polite'},
+  {id:4,w:'thank you',ru:'спасибо',e:'😊',ipa:'/θæŋk juː/',cat:'Приветствия',week:1,ex:'Thank you very much!',ex_ru:'Большое спасибо!',img:'gratitude,smile'},
+  {id:5,w:'sorry',ru:'извините',e:'😔',ipa:'/ˈsɒri/',cat:'Приветствия',week:1,ex:'Sorry, I am late.',ex_ru:'Извините, я опоздал.',img:'apology,sorry'},
+  {id:6,w:'yes',ru:'да',e:'✅',ipa:'/jɛs/',cat:'Основы',week:1,ex:'Yes, I understand.',ex_ru:'Да, я понимаю.',img:'yes,agree,nod'},
+  {id:7,w:'no',ru:'нет',e:'❌',ipa:'/noʊ/',cat:'Основы',week:1,ex:'No, thank you.',ex_ru:'Нет, спасибо.',img:'no,refuse'},
+  {id:8,w:'good',ru:'хороший',e:'👍',ipa:'/ɡʊd/',cat:'Основы',week:1,ex:'This is a good idea.',ex_ru:'Это хорошая идея.',img:'good,thumbs up'},
+  {id:9,w:'morning',ru:'утро',e:'🌅',ipa:'/ˈmɔːrnɪŋ/',cat:'Время',week:1,ex:'Good morning! Nice day.',ex_ru:'Доброе утро! Хороший день.',img:'morning,sunrise'},
+  {id:10,w:'night',ru:'ночь',e:'🌙',ipa:'/naɪt/',cat:'Время',week:1,ex:'Good night! Sleep well.',ex_ru:'Спокойной ночи! Сладких снов.',img:'night,moon,sleep'},
+
+  // WEEK 2: Numbers
+  {id:11,w:'one',ru:'один',e:'1️⃣',ipa:'/wʌn/',cat:'Числа',week:2,ex:'I have one sister.',ex_ru:'У меня есть одна сестра.',img:'number one,single'},
+  {id:12,w:'two',ru:'два',e:'2️⃣',ipa:'/tuː/',cat:'Числа',week:2,ex:'Two apples, please.',ex_ru:'Два яблока, пожалуйста.',img:'number two,pair'},
+  {id:13,w:'three',ru:'три',e:'3️⃣',ipa:'/θriː/',cat:'Числа',week:2,ex:'I need three days.',ex_ru:'Мне нужно три дня.',img:'number three'},
+  {id:14,w:'four',ru:'четыре',e:'4️⃣',ipa:'/fɔːr/',cat:'Числа',week:2,ex:'Four people in my family.',ex_ru:'Четыре человека в моей семье.',img:'number four'},
+  {id:15,w:'five',ru:'пять',e:'5️⃣',ipa:'/faɪv/',cat:'Числа',week:2,ex:'Five minutes, please.',ex_ru:'Пять минут, пожалуйста.',img:'number five,hand'},
+  {id:16,w:'ten',ru:'десять',e:'🔟',ipa:'/tɛn/',cat:'Числа',week:2,ex:'I work ten hours.',ex_ru:'Я работаю десять часов.',img:'number ten'},
+  {id:17,w:'hundred',ru:'сто',e:'💯',ipa:'/ˈhʌndrəd/',cat:'Числа',week:2,ex:'One hundred people came.',ex_ru:'Пришло сто человек.',img:'hundred,many'},
+  {id:18,w:'money',ru:'деньги',e:'💰',ipa:'/ˈmʌni/',cat:'Числа',week:2,ex:'I need money for food.',ex_ru:'Мне нужны деньги на еду.',img:'money,cash'},
+  {id:19,w:'time',ru:'время',e:'⏰',ipa:'/taɪm/',cat:'Время',week:2,ex:'What time is it?',ex_ru:'Который час?',img:'time,clock,watch'},
+  {id:20,w:'today',ru:'сегодня',e:'📅',ipa:'/təˈdeɪ/',cat:'Время',week:2,ex:'Today is a good day.',ex_ru:'Сегодня хороший день.',img:'today,calendar'},
+
+  // WEEK 3: Colors
+  {id:21,w:'red',ru:'красный',e:'🔴',ipa:'/rɛd/',cat:'Цвета',week:3,ex:'I like red flowers.',ex_ru:'Мне нравятся красные цветы.',img:'red,color,rose'},
+  {id:22,w:'blue',ru:'синий',e:'🔵',ipa:'/bluː/',cat:'Цвета',week:3,ex:'The sky is blue.',ex_ru:'Небо синее.',img:'blue,sky,ocean'},
+  {id:23,w:'green',ru:'зелёный',e:'🟢',ipa:'/ɡriːn/',cat:'Цвета',week:3,ex:'Grass is green.',ex_ru:'Трава зелёная.',img:'green,grass,nature'},
+  {id:24,w:'yellow',ru:'жёлтый',e:'🟡',ipa:'/ˈjɛloʊ/',cat:'Цвета',week:3,ex:'The sun is yellow.',ex_ru:'Солнце жёлтое.',img:'yellow,sun,bright'},
+  {id:25,w:'black',ru:'чёрный',e:'⚫',ipa:'/blæk/',cat:'Цвета',week:3,ex:'I have a black cat.',ex_ru:'У меня есть чёрный кот.',img:'black,dark,night'},
+  {id:26,w:'white',ru:'белый',e:'⚪',ipa:'/waɪt/',cat:'Цвета',week:3,ex:'Snow is white.',ex_ru:'Снег белый.',img:'white,snow,pure'},
+  {id:27,w:'orange',ru:'оранжевый',e:'🟠',ipa:'/ˈɒrɪndʒ/',cat:'Цвета',week:3,ex:'I eat an orange fruit.',ex_ru:'Я ем апельсин.',img:'orange,fruit,color'},
+  {id:28,w:'pink',ru:'розовый',e:'🩷',ipa:'/pɪŋk/',cat:'Цвета',week:3,ex:'She wears a pink dress.',ex_ru:'Она носит розовое платье.',img:'pink,flower,rose'},
+  {id:29,w:'brown',ru:'коричневый',e:'🟫',ipa:'/braʊn/',cat:'Цвета',week:3,ex:'I have brown eyes.',ex_ru:'У меня карие глаза.',img:'brown,wood,coffee'},
+  {id:30,w:'color',ru:'цвет',e:'🎨',ipa:'/ˈkʌlər/',cat:'Цвета',week:3,ex:'What is your favorite color?',ex_ru:'Какой ваш любимый цвет?',img:'color,palette,art'},
+
+  // WEEK 4: Family
+  {id:31,w:'mother',ru:'мама',e:'👩',ipa:'/ˈmʌðər/',cat:'Семья',week:4,ex:'My mother is kind.',ex_ru:'Моя мама добрая.',img:'mother,mom,family'},
+  {id:32,w:'father',ru:'папа',e:'👨',ipa:'/ˈfɑːðər/',cat:'Семья',week:4,ex:'My father works hard.',ex_ru:'Мой папа много работает.',img:'father,dad,family'},
+  {id:33,w:'sister',ru:'сестра',e:'👧',ipa:'/ˈsɪstər/',cat:'Семья',week:4,ex:'My sister is young.',ex_ru:'Моя сестра молодая.',img:'sister,girl,siblings'},
+  {id:34,w:'brother',ru:'брат',e:'👦',ipa:'/ˈbrʌðər/',cat:'Семья',week:4,ex:'My brother plays football.',ex_ru:'Мой брат играет в футбол.',img:'brother,boy,siblings'},
+  {id:35,w:'son',ru:'сын',e:'🧒',ipa:'/sʌn/',cat:'Семья',week:4,ex:'This is my son.',ex_ru:'Это мой сын.',img:'son,child,boy'},
+  {id:36,w:'daughter',ru:'дочь',e:'👶',ipa:'/ˈdɔːtər/',cat:'Семья',week:4,ex:'My daughter is five.',ex_ru:'Моей дочери пять лет.',img:'daughter,girl,child'},
+  {id:37,w:'husband',ru:'муж',e:'💑',ipa:'/ˈhʌzbənd/',cat:'Семья',week:4,ex:'My husband is a doctor.',ex_ru:'Мой муж — врач.',img:'husband,couple,wedding'},
+  {id:38,w:'wife',ru:'жена',e:'💍',ipa:'/waɪf/',cat:'Семья',week:4,ex:'My wife is beautiful.',ex_ru:'Моя жена красивая.',img:'wife,woman,wedding'},
+  {id:39,w:'friend',ru:'друг',e:'🤝',ipa:'/frɛnd/',cat:'Семья',week:4,ex:'He is my best friend.',ex_ru:'Он мой лучший друг.',img:'friends,together,happy'},
+  {id:40,w:'family',ru:'семья',e:'👨‍👩‍👧‍👦',ipa:'/ˈfæməli/',cat:'Семья',week:4,ex:'I love my family.',ex_ru:'Я люблю свою семью.',img:'family,together,home'},
+
+  // WEEK 5: Body
+  {id:41,w:'head',ru:'голова',e:'🤔',ipa:'/hɛd/',cat:'Тело',week:5,ex:'My head hurts today.',ex_ru:'У меня сегодня болит голова.',img:'head,face,person'},
+  {id:42,w:'eye',ru:'глаз',e:'👁️',ipa:'/aɪ/',cat:'Тело',week:5,ex:'Her eyes are green.',ex_ru:'У неё зелёные глаза.',img:'eye,vision,look'},
+  {id:43,w:'mouth',ru:'рот',e:'👄',ipa:'/maʊθ/',cat:'Тело',week:5,ex:'Open your mouth, please.',ex_ru:'Откройте рот, пожалуйста.',img:'mouth,lips,smile'},
+  {id:44,w:'hand',ru:'рука',e:'🤚',ipa:'/hænd/',cat:'Тело',week:5,ex:'Wash your hands!',ex_ru:'Мойте руки!',img:'hand,palm,fingers'},
+  {id:45,w:'leg',ru:'нога',e:'🦵',ipa:'/lɛɡ/',cat:'Тело',week:5,ex:'My leg is tired.',ex_ru:'Моя нога устала.',img:'leg,foot,walk'},
+  {id:46,w:'hair',ru:'волосы',e:'💇',ipa:'/hɛr/',cat:'Тело',week:5,ex:'She has long hair.',ex_ru:'У неё длинные волосы.',img:'hair,long,beautiful'},
+  {id:47,w:'heart',ru:'сердце',e:'❤️',ipa:'/hɑːrt/',cat:'Тело',week:5,ex:'I love you with my heart.',ex_ru:'Я люблю тебя всем сердцем.',img:'heart,love,red'},
+  {id:48,w:'back',ru:'спина',e:'🧍',ipa:'/bæk/',cat:'Тело',week:5,ex:'My back hurts.',ex_ru:'У меня болит спина.',img:'back,spine,body'},
+  {id:49,w:'ear',ru:'ухо',e:'👂',ipa:'/ɪr/',cat:'Тело',week:5,ex:'I hear with my ears.',ex_ru:'Я слышу ушами.',img:'ear,listen,hearing'},
+  {id:50,w:'nose',ru:'нос',e:'👃',ipa:'/noʊz/',cat:'Тело',week:5,ex:'I smell with my nose.',ex_ru:'Я чувствую запах носом.',img:'nose,smell,face'},
+
+  // WEEK 6: Home
+  {id:51,w:'house',ru:'дом',e:'🏠',ipa:'/haʊs/',cat:'Дом',week:6,ex:'This is my house.',ex_ru:'Это мой дом.',img:'house,home,building'},
+  {id:52,w:'room',ru:'комната',e:'🚪',ipa:'/ruːm/',cat:'Дом',week:6,ex:'My room is small.',ex_ru:'Моя комната маленькая.',img:'room,interior,bedroom'},
+  {id:53,w:'kitchen',ru:'кухня',e:'🍳',ipa:'/ˈkɪtʃɪn/',cat:'Дом',week:6,ex:'I cook in the kitchen.',ex_ru:'Я готовлю на кухне.',img:'kitchen,cooking,food'},
+  {id:54,w:'bed',ru:'кровать',e:'🛏️',ipa:'/bɛd/',cat:'Дом',week:6,ex:'I sleep in my bed.',ex_ru:'Я сплю в своей кровати.',img:'bed,sleep,bedroom'},
+  {id:55,w:'table',ru:'стол',e:'🪑',ipa:'/ˈteɪbəl/',cat:'Дом',week:6,ex:'We eat at the table.',ex_ru:'Мы едим за столом.',img:'table,furniture,dining'},
+  {id:56,w:'window',ru:'окно',e:'🪟',ipa:'/ˈwɪndoʊ/',cat:'Дом',week:6,ex:'Open the window, please.',ex_ru:'Откройте окно, пожалуйста.',img:'window,light,view'},
+  {id:57,w:'door',ru:'дверь',e:'🚪',ipa:'/dɔːr/',cat:'Дом',week:6,ex:'Close the door.',ex_ru:'Закройте дверь.',img:'door,entrance,wood'},
+  {id:58,w:'chair',ru:'стул',e:'🪑',ipa:'/tʃɛr/',cat:'Дом',week:6,ex:'Sit on the chair.',ex_ru:'Сядьте на стул.',img:'chair,furniture,sit'},
+  {id:59,w:'bathroom',ru:'ванная',e:'🚿',ipa:'/ˈbæθruːm/',cat:'Дом',week:6,ex:'The bathroom is clean.',ex_ru:'Ванная чистая.',img:'bathroom,shower,clean'},
+  {id:60,w:'key',ru:'ключ',e:'🔑',ipa:'/kiː/',cat:'Дом',week:6,ex:'I lost my key!',ex_ru:'Я потерял ключ!',img:'key,lock,door'},
+
+  // WEEK 7: Food
+  {id:61,w:'apple',ru:'яблоко',e:'🍎',ipa:'/ˈæpəl/',cat:'Еда',week:7,ex:'I eat an apple every day.',ex_ru:'Я ем яблоко каждый день.',img:'apple,fruit,red'},
+  {id:62,w:'bread',ru:'хлеб',e:'🍞',ipa:'/brɛd/',cat:'Еда',week:7,ex:'I like fresh bread.',ex_ru:'Мне нравится свежий хлеб.',img:'bread,bakery,fresh'},
+  {id:63,w:'milk',ru:'молоко',e:'🥛',ipa:'/mɪlk/',cat:'Еда',week:7,ex:'I drink milk in the morning.',ex_ru:'Я пью молоко по утрам.',img:'milk,white,glass'},
+  {id:64,w:'water',ru:'вода',e:'💧',ipa:'/ˈwɔːtər/',cat:'Еда',week:7,ex:'Drink more water!',ex_ru:'Пейте больше воды!',img:'water,glass,drink'},
+  {id:65,w:'egg',ru:'яйцо',e:'🥚',ipa:'/ɛɡ/',cat:'Еда',week:7,ex:'I eat two eggs for breakfast.',ex_ru:'Я ем два яйца на завтрак.',img:'egg,breakfast,food'},
+  {id:66,w:'meat',ru:'мясо',e:'🥩',ipa:'/miːt/',cat:'Еда',week:7,ex:'I like chicken meat.',ex_ru:'Мне нравится куриное мясо.',img:'meat,beef,food'},
+  {id:67,w:'fish',ru:'рыба',e:'🐟',ipa:'/fɪʃ/',cat:'Еда',week:7,ex:'Fish is healthy food.',ex_ru:'Рыба — здоровая еда.',img:'fish,seafood,healthy'},
+  {id:68,w:'coffee',ru:'кофе',e:'☕',ipa:'/ˈkɒfi/',cat:'Еда',week:7,ex:'I need coffee in the morning.',ex_ru:'Мне нужен кофе по утрам.',img:'coffee,cup,hot'},
+  {id:69,w:'tea',ru:'чай',e:'🍵',ipa:'/tiː/',cat:'Еда',week:7,ex:'Would you like some tea?',ex_ru:'Хотите чаю?',img:'tea,cup,drink'},
+  {id:70,w:'food',ru:'еда',e:'🍽️',ipa:'/fuːd/',cat:'Еда',week:7,ex:'The food is delicious!',ex_ru:'Еда вкусная!',img:'food,meal,plate'},
+
+  // WEEK 8: Clothes
+  {id:71,w:'shirt',ru:'рубашка',e:'👔',ipa:'/ʃɜːrt/',cat:'Одежда',week:8,ex:'I wear a blue shirt.',ex_ru:'Я ношу синюю рубашку.',img:'shirt,clothing,fashion'},
+  {id:72,w:'pants',ru:'брюки',e:'👖',ipa:'/pænts/',cat:'Одежда',week:8,ex:'These pants are new.',ex_ru:'Эти брюки новые.',img:'pants,jeans,clothing'},
+  {id:73,w:'dress',ru:'платье',e:'👗',ipa:'/drɛs/',cat:'Одежда',week:8,ex:'She wears a red dress.',ex_ru:'Она носит красное платье.',img:'dress,fashion,woman'},
+  {id:74,w:'shoes',ru:'туфли/обувь',e:'👟',ipa:'/ʃuːz/',cat:'Одежда',week:8,ex:'My shoes are comfortable.',ex_ru:'Моя обувь удобная.',img:'shoes,sneakers,fashion'},
+  {id:75,w:'hat',ru:'шляпа',e:'🎩',ipa:'/hæt/',cat:'Одежда',week:8,ex:'I wear a hat in summer.',ex_ru:'Я ношу шляпу летом.',img:'hat,fashion,sun'},
+  {id:76,w:'jacket',ru:'куртка',e:'🧥',ipa:'/ˈdʒækɪt/',cat:'Одежда',week:8,ex:'Take your jacket — it is cold.',ex_ru:'Возьми куртку — холодно.',img:'jacket,coat,warm'},
+  {id:77,w:'socks',ru:'носки',e:'🧦',ipa:'/sɒks/',cat:'Одежда',week:8,ex:'I need clean socks.',ex_ru:'Мне нужны чистые носки.',img:'socks,clothing,feet'},
+  {id:78,w:'bag',ru:'сумка',e:'👜',ipa:'/bæɡ/',cat:'Одежда',week:8,ex:'My bag is heavy.',ex_ru:'Моя сумка тяжёлая.',img:'bag,purse,fashion'},
+  {id:79,w:'glasses',ru:'очки',e:'👓',ipa:'/ˈɡlæsɪz/',cat:'Одежда',week:8,ex:'I wear glasses to read.',ex_ru:'Я ношу очки для чтения.',img:'glasses,eyewear,vision'},
+  {id:80,w:'watch',ru:'часы (наручные)',e:'⌚',ipa:'/wɒtʃ/',cat:'Одежда',week:8,ex:'I have a nice watch.',ex_ru:'У меня красивые часы.',img:'watch,wristwatch,time'},
+
+  // WEEK 9: Verbs 1
+  {id:81,w:'eat',ru:'есть (кушать)',e:'🍴',ipa:'/iːt/',cat:'Глаголы',week:9,ex:'I eat breakfast at 8.',ex_ru:'Я ем завтрак в 8.',img:'eating,food,meal'},
+  {id:82,w:'drink',ru:'пить',e:'🥤',ipa:'/drɪŋk/',cat:'Глаголы',week:9,ex:'I drink coffee every morning.',ex_ru:'Я пью кофе каждое утро.',img:'drinking,beverage,cup'},
+  {id:83,w:'sleep',ru:'спать',e:'😴',ipa:'/sliːp/',cat:'Глаголы',week:9,ex:'I sleep eight hours.',ex_ru:'Я сплю восемь часов.',img:'sleep,bed,rest'},
+  {id:84,w:'go',ru:'идти',e:'🚶',ipa:'/ɡoʊ/',cat:'Глаголы',week:9,ex:'Let us go to the park.',ex_ru:'Пойдём в парк.',img:'walking,go,movement'},
+  {id:85,w:'come',ru:'прийти',e:'🏃',ipa:'/kʌm/',cat:'Глаголы',week:9,ex:'Please come here.',ex_ru:'Пожалуйста, подойдите сюда.',img:'coming,arrive,people'},
+  {id:86,w:'see',ru:'видеть',e:'👀',ipa:'/siː/',cat:'Глаголы',week:9,ex:'I see a beautiful view.',ex_ru:'Я вижу красивый вид.',img:'see,view,eyes,landscape'},
+  {id:87,w:'hear',ru:'слышать',e:'👂',ipa:'/hɪr/',cat:'Глаголы',week:9,ex:'I hear music.',ex_ru:'Я слышу музыку.',img:'hearing,music,sound'},
+  {id:88,w:'speak',ru:'говорить',e:'🗣️',ipa:'/spiːk/',cat:'Глаголы',week:9,ex:'I speak English.',ex_ru:'Я говорю по-английски.',img:'speaking,talk,communication'},
+  {id:89,w:'read',ru:'читать',e:'📖',ipa:'/riːd/',cat:'Глаголы',week:9,ex:'I read books every day.',ex_ru:'Я читаю книги каждый день.',img:'reading,book,library'},
+  {id:90,w:'write',ru:'писать',e:'✍️',ipa:'/raɪt/',cat:'Глаголы',week:9,ex:'Write your name here.',ex_ru:'Напишите своё имя здесь.',img:'writing,pen,paper'},
+
+  // WEEK 10: Verbs 2
+  {id:91,w:'work',ru:'работать',e:'💼',ipa:'/wɜːrk/',cat:'Глаголы',week:10,ex:'I work in an office.',ex_ru:'Я работаю в офисе.',img:'work,office,business'},
+  {id:92,w:'play',ru:'играть',e:'🎮',ipa:'/pleɪ/',cat:'Глаголы',week:10,ex:'Children play in the park.',ex_ru:'Дети играют в парке.',img:'playing,games,fun'},
+  {id:93,w:'walk',ru:'гулять/ходить',e:'🚶',ipa:'/wɔːk/',cat:'Глаголы',week:10,ex:'I walk to work.',ex_ru:'Я хожу на работу пешком.',img:'walking,street,path'},
+  {id:94,w:'run',ru:'бегать',e:'🏃',ipa:'/rʌn/',cat:'Глаголы',week:10,ex:'I run in the morning.',ex_ru:'Я бегаю по утрам.',img:'running,sport,fitness'},
+  {id:95,w:'sit',ru:'сидеть',e:'🪑',ipa:'/sɪt/',cat:'Глаголы',week:10,ex:'Please sit down.',ex_ru:'Пожалуйста, садитесь.',img:'sitting,chair,relax'},
+  {id:96,w:'like',ru:'нравиться',e:'❤️',ipa:'/laɪk/',cat:'Глаголы',week:10,ex:'I like this music.',ex_ru:'Мне нравится эта музыка.',img:'like,love,heart'},
+  {id:97,w:'want',ru:'хотеть',e:'🤩',ipa:'/wɒnt/',cat:'Глаголы',week:10,ex:'I want to learn English.',ex_ru:'Я хочу выучить английский.',img:'want,desire,goal'},
+  {id:98,w:'need',ru:'нуждаться',e:'🆘',ipa:'/niːd/',cat:'Глаголы',week:10,ex:'I need help, please.',ex_ru:'Мне нужна помощь, пожалуйста.',img:'need,help,assistance'},
+  {id:99,w:'know',ru:'знать',e:'🧠',ipa:'/noʊ/',cat:'Глаголы',week:10,ex:'I know this word.',ex_ru:'Я знаю это слово.',img:'knowledge,brain,learning'},
+  {id:100,w:'understand',ru:'понимать',e:'💡',ipa:'/ˌʌndərˈstænd/',cat:'Глаголы',week:10,ex:'I do not understand. Repeat please.',ex_ru:'Я не понимаю. Повторите, пожалуйста.',img:'understanding,lightbulb,idea'},
+
+  // WEEK 11: Adjectives
+  {id:101,w:'big',ru:'большой',e:'🐘',ipa:'/bɪɡ/',cat:'Прилагательные',week:11,ex:'This is a big house.',ex_ru:'Это большой дом.',img:'big,large,elephant'},
+  {id:102,w:'small',ru:'маленький',e:'🐭',ipa:'/smɔːl/',cat:'Прилагательные',week:11,ex:'I have a small phone.',ex_ru:'У меня маленький телефон.',img:'small,tiny,little'},
+  {id:103,w:'hot',ru:'горячий',e:'🌡️',ipa:'/hɒt/',cat:'Прилагательные',week:11,ex:'The coffee is hot.',ex_ru:'Кофе горячий.',img:'hot,fire,summer,heat'},
+  {id:104,w:'cold',ru:'холодный',e:'🧊',ipa:'/koʊld/',cat:'Прилагательные',week:11,ex:'It is cold today.',ex_ru:'Сегодня холодно.',img:'cold,ice,winter'},
+  {id:105,w:'fast',ru:'быстрый',e:'⚡',ipa:'/fæst/',cat:'Прилагательные',week:11,ex:'This car is very fast.',ex_ru:'Эта машина очень быстрая.',img:'fast,speed,racing'},
+  {id:106,w:'slow',ru:'медленный',e:'🐢',ipa:'/sloʊ/',cat:'Прилагательные',week:11,ex:'The turtle is slow.',ex_ru:'Черепаха медленная.',img:'slow,turtle,calm'},
+  {id:107,w:'beautiful',ru:'красивый',e:'😍',ipa:'/ˈbjuːtɪfəl/',cat:'Прилагательные',week:11,ex:'What a beautiful day!',ex_ru:'Какой красивый день!',img:'beautiful,nature,sunset'},
+  {id:108,w:'happy',ru:'счастливый',e:'😊',ipa:'/ˈhæpi/',cat:'Прилагательные',week:11,ex:'I am very happy today.',ex_ru:'Я очень счастлив сегодня.',img:'happy,smile,joy'},
+  {id:109,w:'tired',ru:'усталый',e:'😴',ipa:'/ˈtaɪərd/',cat:'Прилагательные',week:11,ex:'I am tired after work.',ex_ru:'Я устал после работы.',img:'tired,sleep,exhausted'},
+  {id:110,w:'new',ru:'новый',e:'✨',ipa:'/njuː/',cat:'Прилагательные',week:11,ex:'I have a new phone.',ex_ru:'У меня новый телефон.',img:'new,fresh,modern'},
+
+  // WEEK 12: Places
+  {id:111,w:'school',ru:'школа',e:'🏫',ipa:'/skuːl/',cat:'Места',week:12,ex:'Children go to school.',ex_ru:'Дети ходят в школу.',img:'school,education,building'},
+  {id:112,w:'hospital',ru:'больница',e:'🏥',ipa:'/ˈhɒspɪtəl/',cat:'Места',week:12,ex:'The hospital is near.',ex_ru:'Больница рядом.',img:'hospital,medical,health'},
+  {id:113,w:'shop',ru:'магазин',e:'🏪',ipa:'/ʃɒp/',cat:'Места',week:12,ex:'Let us go to the shop.',ex_ru:'Пойдём в магазин.',img:'shop,store,market'},
+  {id:114,w:'park',ru:'парк',e:'🌳',ipa:'/pɑːrk/',cat:'Места',week:12,ex:'I walk in the park.',ex_ru:'Я гуляю в парке.',img:'park,green,nature,trees'},
+  {id:115,w:'restaurant',ru:'ресторан',e:'🍽️',ipa:'/ˈrɛstərɒnt/',cat:'Места',week:12,ex:'Let us eat in a restaurant.',ex_ru:'Давайте поедим в ресторане.',img:'restaurant,dining,food'},
+  {id:116,w:'hotel',ru:'отель',e:'🏨',ipa:'/hoʊˈtɛl/',cat:'Места',week:12,ex:'I stay in a nice hotel.',ex_ru:'Я остановился в хорошем отеле.',img:'hotel,room,travel'},
+  {id:117,w:'airport',ru:'аэропорт',e:'✈️',ipa:'/ˈɛrpɔːrt/',cat:'Места',week:12,ex:'The airport is far.',ex_ru:'Аэропорт далеко.',img:'airport,plane,travel'},
+  {id:118,w:'bank',ru:'банк',e:'🏦',ipa:'/bæŋk/',cat:'Места',week:12,ex:'I go to the bank today.',ex_ru:'Я иду в банк сегодня.',img:'bank,money,building'},
+  {id:119,w:'city',ru:'город',e:'🌆',ipa:'/ˈsɪti/',cat:'Места',week:12,ex:'I live in a big city.',ex_ru:'Я живу в большом городе.',img:'city,skyline,urban'},
+  {id:120,w:'street',ru:'улица',e:'🛣️',ipa:'/striːt/',cat:'Места',week:12,ex:'What street is this?',ex_ru:'Какая это улица?',img:'street,road,city'},
+
+  // WEEK 13: Transport
+  {id:121,w:'car',ru:'машина',e:'🚗',ipa:'/kɑːr/',cat:'Транспорт',week:13,ex:'I drive a red car.',ex_ru:'Я езжу на красной машине.',img:'car,automobile,red'},
+  {id:122,w:'bus',ru:'автобус',e:'🚌',ipa:'/bʌs/',cat:'Транспорт',week:13,ex:'I take the bus to work.',ex_ru:'Я еду на работу на автобусе.',img:'bus,public transport,city'},
+  {id:123,w:'train',ru:'поезд',e:'🚂',ipa:'/treɪn/',cat:'Транспорт',week:13,ex:'The train is fast.',ex_ru:'Поезд быстрый.',img:'train,railway,travel'},
+  {id:124,w:'plane',ru:'самолёт',e:'✈️',ipa:'/pleɪn/',cat:'Транспорт',week:13,ex:'I fly by plane.',ex_ru:'Я лечу на самолёте.',img:'airplane,flight,sky'},
+  {id:125,w:'taxi',ru:'такси',e:'🚕',ipa:'/ˈtæksi/',cat:'Транспорт',week:13,ex:'Call me a taxi, please.',ex_ru:'Вызовите мне такси, пожалуйста.',img:'taxi,cab,yellow'},
+  {id:126,w:'bike',ru:'велосипед',e:'🚴',ipa:'/baɪk/',cat:'Транспорт',week:13,ex:'I ride a bike in summer.',ex_ru:'Я катаюсь на велосипеде летом.',img:'bike,bicycle,cycling'},
+  {id:127,w:'ticket',ru:'билет',e:'🎟️',ipa:'/ˈtɪkɪt/',cat:'Транспорт',week:13,ex:'I need a train ticket.',ex_ru:'Мне нужен билет на поезд.',img:'ticket,travel,transport'},
+  {id:128,w:'station',ru:'станция',e:'🚉',ipa:'/ˈsteɪʃən/',cat:'Транспорт',week:13,ex:'Where is the bus station?',ex_ru:'Где автобусная станция?',img:'station,train,platform'},
+  {id:129,w:'left',ru:'левый',e:'⬅️',ipa:'/lɛft/',cat:'Транспорт',week:13,ex:'Turn left here.',ex_ru:'Поверните здесь налево.',img:'left,direction,arrow'},
+  {id:130,w:'right',ru:'правый',e:'➡️',ipa:'/raɪt/',cat:'Транспорт',week:13,ex:'Turn right at the corner.',ex_ru:'Поверните направо на углу.',img:'right,direction,arrow'},
+
+  // WEEK 14: Emotions
+  {id:131,w:'love',ru:'любовь',e:'❤️',ipa:'/lʌv/',cat:'Эмоции',week:14,ex:'I love my family.',ex_ru:'Я люблю свою семью.',img:'love,heart,couple'},
+  {id:132,w:'angry',ru:'злой',e:'😠',ipa:'/ˈæŋɡri/',cat:'Эмоции',week:14,ex:'Please do not be angry.',ex_ru:'Пожалуйста, не злись.',img:'angry,mad,emotion'},
+  {id:133,w:'sad',ru:'грустный',e:'😢',ipa:'/sæd/',cat:'Эмоции',week:14,ex:'I am sad today.',ex_ru:'Сегодня мне грустно.',img:'sad,cry,emotion'},
+  {id:134,w:'scared',ru:'напуганный',e:'😱',ipa:'/skɛrd/',cat:'Эмоции',week:14,ex:'I am scared of dogs.',ex_ru:'Я боюсь собак.',img:'scared,fear,afraid'},
+  {id:135,w:'excited',ru:'взволнованный',e:'🤩',ipa:'/ɪkˈsaɪtɪd/',cat:'Эмоции',week:14,ex:'I am excited about my trip!',ex_ru:'Я в восторге от своей поездки!',img:'excited,happy,celebration'},
+  {id:136,w:'bored',ru:'скучающий',e:'😑',ipa:'/bɔːrd/',cat:'Эмоции',week:14,ex:'I am bored at home.',ex_ru:'Мне скучно дома.',img:'bored,alone,sad'},
+  {id:137,w:'worried',ru:'обеспокоенный',e:'😟',ipa:'/ˈwʌrid/',cat:'Эмоции',week:14,ex:'I am worried about you.',ex_ru:'Я беспокоюсь о тебе.',img:'worried,anxiety,stress'},
+  {id:138,w:'surprised',ru:'удивлённый',e:'😲',ipa:'/sərˈpraɪzd/',cat:'Эмоции',week:14,ex:'I am surprised by this news.',ex_ru:'Я удивлён этой новостью.',img:'surprised,shock,wow'},
+  {id:139,w:'calm',ru:'спокойный',e:'😌',ipa:'/kɑːm/',cat:'Эмоции',week:14,ex:'Stay calm, everything is okay.',ex_ru:'Оставайтесь спокойны, всё хорошо.',img:'calm,peaceful,relax'},
+  {id:140,w:'fun',ru:'веселье',e:'🎉',ipa:'/fʌn/',cat:'Эмоции',week:14,ex:'This is so much fun!',ex_ru:'Это очень весело!',img:'fun,party,happy,celebrate'},
+
+  // WEEK 15: Weather & Nature
+  {id:141,w:'sun',ru:'солнце',e:'☀️',ipa:'/sʌn/',cat:'Природа',week:15,ex:'The sun is bright today.',ex_ru:'Солнце яркое сегодня.',img:'sun,bright,sky'},
+  {id:142,w:'rain',ru:'дождь',e:'🌧️',ipa:'/reɪn/',cat:'Природа',week:15,ex:'It rains a lot here.',ex_ru:'Здесь часто идёт дождь.',img:'rain,water,weather'},
+  {id:143,w:'snow',ru:'снег',e:'❄️',ipa:'/snoʊ/',cat:'Природа',week:15,ex:'I love snow in winter.',ex_ru:'Я люблю снег зимой.',img:'snow,winter,white'},
+  {id:144,w:'wind',ru:'ветер',e:'💨',ipa:'/wɪnd/',cat:'Природа',week:15,ex:'The wind is strong today.',ex_ru:'Сегодня сильный ветер.',img:'wind,storm,nature'},
+  {id:145,w:'tree',ru:'дерево',e:'🌳',ipa:'/triː/',cat:'Природа',week:15,ex:'The tree is very tall.',ex_ru:'Дерево очень высокое.',img:'tree,forest,nature,green'},
+  {id:146,w:'flower',ru:'цветок',e:'🌸',ipa:'/ˈflaʊər/',cat:'Природа',week:15,ex:'She likes beautiful flowers.',ex_ru:'Она любит красивые цветы.',img:'flower,bloom,spring'},
+  {id:147,w:'dog',ru:'собака',e:'🐕',ipa:'/dɒɡ/',cat:'Природа',week:15,ex:'My dog is friendly.',ex_ru:'Моя собака дружелюбная.',img:'dog,pet,cute'},
+  {id:148,w:'cat',ru:'кот',e:'🐈',ipa:'/kæt/',cat:'Природа',week:15,ex:'I have a black cat.',ex_ru:'У меня есть чёрный кот.',img:'cat,pet,cute'},
+  {id:149,w:'hot',ru:'жарко (погода)',e:'🌡️',ipa:'/hɒt/',cat:'Природа',week:15,ex:'It is very hot in summer.',ex_ru:'Летом очень жарко.',img:'hot,summer,sun,heat'},
+  {id:150,w:'weather',ru:'погода',e:'🌤️',ipa:'/ˈwɛðər/',cat:'Природа',week:15,ex:'The weather is nice today.',ex_ru:'Сегодня хорошая погода.',img:'weather,sky,clouds'},
+
+  // WEEK 16: Technology
+  {id:151,w:'phone',ru:'телефон',e:'📱',ipa:'/foʊn/',cat:'Технологии',week:16,ex:'My phone is new.',ex_ru:'Мой телефон новый.',img:'phone,smartphone,mobile'},
+  {id:152,w:'computer',ru:'компьютер',e:'💻',ipa:'/kəmˈpjuːtər/',cat:'Технологии',week:16,ex:'I work on my computer.',ex_ru:'Я работаю за компьютером.',img:'computer,laptop,technology'},
+  {id:153,w:'internet',ru:'интернет',e:'🌐',ipa:'/ˈɪntərˌnɛt/',cat:'Технологии',week:16,ex:'I need internet to work.',ex_ru:'Мне нужен интернет для работы.',img:'internet,wifi,technology'},
+  {id:154,w:'message',ru:'сообщение',e:'💬',ipa:'/ˈmɛsɪdʒ/',cat:'Технологии',week:16,ex:'Send me a message.',ex_ru:'Пришли мне сообщение.',img:'message,chat,communication'},
+  {id:155,w:'photo',ru:'фотография',e:'📷',ipa:'/ˈfoʊtoʊ/',cat:'Технологии',week:16,ex:'I take a photo here.',ex_ru:'Я делаю фото здесь.',img:'photo,camera,picture'},
+  {id:156,w:'music',ru:'музыка',e:'🎵',ipa:'/ˈmjuːzɪk/',cat:'Технологии',week:16,ex:'I listen to music.',ex_ru:'Я слушаю музыку.',img:'music,headphones,concert'},
+  {id:157,w:'video',ru:'видео',e:'📹',ipa:'/ˈvɪdioʊ/',cat:'Технологии',week:16,ex:'Watch this video.',ex_ru:'Посмотри это видео.',img:'video,film,screen'},
+  {id:158,w:'email',ru:'электронная почта',e:'📧',ipa:'/ˈiːmeɪl/',cat:'Технологии',week:16,ex:'Send me an email.',ex_ru:'Пришлите мне email.',img:'email,inbox,communication'},
+  {id:159,w:'app',ru:'приложение',e:'📲',ipa:'/æp/',cat:'Технологии',week:16,ex:'I use this app every day.',ex_ru:'Я использую это приложение каждый день.',img:'app,mobile,technology'},
+  {id:160,w:'password',ru:'пароль',e:'🔐',ipa:'/ˈpæswɜːrd/',cat:'Технологии',week:16,ex:'Do not share your password.',ex_ru:'Не делитесь своим паролем.',img:'password,security,lock'},
+
+  // WEEK 17: Shopping
+  {id:161,w:'buy',ru:'купить',e:'🛒',ipa:'/baɪ/',cat:'Покупки',week:17,ex:'I want to buy this.',ex_ru:'Я хочу купить это.',img:'shopping,buy,cart'},
+  {id:162,w:'sell',ru:'продать',e:'💸',ipa:'/sɛl/',cat:'Покупки',week:17,ex:'He sells cars.',ex_ru:'Он продаёт машины.',img:'selling,market,business'},
+  {id:163,w:'price',ru:'цена',e:'💲',ipa:'/praɪs/',cat:'Покупки',week:17,ex:'What is the price?',ex_ru:'Какая цена?',img:'price,cost,shopping'},
+  {id:164,w:'cheap',ru:'дешёвый',e:'🏷️',ipa:'/tʃiːp/',cat:'Покупки',week:17,ex:'This is very cheap.',ex_ru:'Это очень дёшево.',img:'cheap,sale,discount'},
+  {id:165,w:'expensive',ru:'дорогой',e:'💎',ipa:'/ɪkˈspɛnsɪv/',cat:'Покупки',week:17,ex:'This hotel is expensive.',ex_ru:'Этот отель дорогой.',img:'expensive,luxury,diamonds'},
+  {id:166,w:'pay',ru:'платить',e:'💳',ipa:'/peɪ/',cat:'Покупки',week:17,ex:'I pay by card.',ex_ru:'Я плачу картой.',img:'payment,card,money'},
+  {id:167,w:'open',ru:'открыт',e:'🔓',ipa:'/ˈoʊpən/',cat:'Покупки',week:17,ex:'Is the shop open now?',ex_ru:'Магазин сейчас открыт?',img:'open,door,welcome'},
+  {id:168,w:'closed',ru:'закрыт',e:'🔒',ipa:'/kloʊzd/',cat:'Покупки',week:17,ex:'Sorry, we are closed.',ex_ru:'Извините, мы закрыты.',img:'closed,door,lock'},
+  {id:169,w:'free',ru:'бесплатный',e:'🎁',ipa:'/friː/',cat:'Покупки',week:17,ex:'Is this free?',ex_ru:'Это бесплатно?',img:'free,gift,surprise'},
+  {id:170,w:'help',ru:'помощь',e:'🆘',ipa:'/hɛlp/',cat:'Покупки',week:17,ex:'Can you help me please?',ex_ru:'Вы можете мне помочь, пожалуйста?',img:'help,support,assistance'},
+
+  // WEEK 18: Health
+  {id:171,w:'doctor',ru:'врач',e:'👨‍⚕️',ipa:'/ˈdɒktər/',cat:'Здоровье',week:18,ex:'I need to see a doctor.',ex_ru:'Мне нужно к врачу.',img:'doctor,medical,health'},
+  {id:172,w:'sick',ru:'больной',e:'🤒',ipa:'/sɪk/',cat:'Здоровье',week:18,ex:'I feel sick today.',ex_ru:'Сегодня я чувствую себя плохо.',img:'sick,ill,fever'},
+  {id:173,w:'pain',ru:'боль',e:'😣',ipa:'/peɪn/',cat:'Здоровье',week:18,ex:'I have pain in my back.',ex_ru:'У меня боль в спине.',img:'pain,hurt,medical'},
+  {id:174,w:'medicine',ru:'лекарство',e:'💊',ipa:'/ˈmɛdsɪn/',cat:'Здоровье',week:18,ex:'Take this medicine.',ex_ru:'Примите это лекарство.',img:'medicine,pills,pharmacy'},
+  {id:175,w:'sleep',ru:'сон',e:'💤',ipa:'/sliːp/',cat:'Здоровье',week:18,ex:'Good sleep is important.',ex_ru:'Хороший сон важен.',img:'sleep,rest,bed,night'},
+  {id:176,w:'sport',ru:'спорт',e:'⚽',ipa:'/spɔːrt/',cat:'Здоровье',week:18,ex:'I do sport every day.',ex_ru:'Я занимаюсь спортом каждый день.',img:'sport,fitness,active'},
+  {id:177,w:'healthy',ru:'здоровый',e:'💪',ipa:'/ˈhɛlθi/',cat:'Здоровье',week:18,ex:'Eat healthy food.',ex_ru:'Ешьте здоровую еду.',img:'healthy,fitness,green'},
+  {id:178,w:'rest',ru:'отдых',e:'🛋️',ipa:'/rɛst/',cat:'Здоровье',week:18,ex:'I need to rest.',ex_ru:'Мне нужно отдохнуть.',img:'rest,relax,couch'},
+  {id:179,w:'water',ru:'вода (пить)',e:'💧',ipa:'/ˈwɔːtər/',cat:'Здоровье',week:18,ex:'Drink more water.',ex_ru:'Пейте больше воды.',img:'water,drink,glass,health'},
+  {id:180,w:'better',ru:'лучше',e:'📈',ipa:'/ˈbɛtər/',cat:'Здоровье',week:18,ex:'I feel better now.',ex_ru:'Сейчас я чувствую себя лучше.',img:'better,recovery,progress'},
+
+  // WEEK 19: Work
+  {id:181,w:'job',ru:'работа',e:'💼',ipa:'/dʒɒb/',cat:'Работа',week:19,ex:'I like my job.',ex_ru:'Мне нравится моя работа.',img:'job,office,work'},
+  {id:182,w:'boss',ru:'начальник',e:'👔',ipa:'/bɒs/',cat:'Работа',week:19,ex:'My boss is kind.',ex_ru:'Мой начальник добрый.',img:'boss,manager,office'},
+  {id:183,w:'meeting',ru:'встреча/собрание',e:'🤝',ipa:'/ˈmiːtɪŋ/',cat:'Работа',week:19,ex:'I have a meeting at 10.',ex_ru:'У меня встреча в 10.',img:'meeting,conference,business'},
+  {id:184,w:'office',ru:'офис',e:'🏢',ipa:'/ˈɒfɪs/',cat:'Работа',week:19,ex:'I work in an office.',ex_ru:'Я работаю в офисе.',img:'office,building,work'},
+  {id:185,w:'money',ru:'деньги',e:'💰',ipa:'/ˈmʌni/',cat:'Работа',week:19,ex:'I need more money.',ex_ru:'Мне нужно больше денег.',img:'money,cash,salary'},
+  {id:186,w:'busy',ru:'занятой',e:'😤',ipa:'/ˈbɪzi/',cat:'Работа',week:19,ex:'I am very busy today.',ex_ru:'Сегодня я очень занят.',img:'busy,work,stressed'},
+  {id:187,w:'project',ru:'проект',e:'📊',ipa:'/ˈprɒdʒɛkt/',cat:'Работа',week:19,ex:'This project is important.',ex_ru:'Этот проект важный.',img:'project,planning,work'},
+  {id:188,w:'problem',ru:'проблема',e:'⚠️',ipa:'/ˈprɒbləm/',cat:'Работа',week:19,ex:'We have a problem.',ex_ru:'У нас есть проблема.',img:'problem,issue,warning'},
+  {id:189,w:'idea',ru:'идея',e:'💡',ipa:'/aɪˈdɪə/',cat:'Работа',week:19,ex:'I have a good idea!',ex_ru:'У меня есть хорошая идея!',img:'idea,lightbulb,creative'},
+  {id:190,w:'important',ru:'важный',e:'⭐',ipa:'/ɪmˈpɔːrtənt/',cat:'Работа',week:19,ex:'This is very important.',ex_ru:'Это очень важно.',img:'important,star,priority'},
+
+  // WEEK 20: Questions & Phrases
+  {id:191,w:'where',ru:'где',e:'📍',ipa:'/wɛr/',cat:'Вопросы',week:20,ex:'Where is the bathroom?',ex_ru:'Где находится туалет?',img:'where,location,map'},
+  {id:192,w:'what',ru:'что',e:'❓',ipa:'/wɒt/',cat:'Вопросы',week:20,ex:'What is this?',ex_ru:'Что это такое?',img:'question,what,curious'},
+  {id:193,w:'when',ru:'когда',e:'⏰',ipa:'/wɛn/',cat:'Вопросы',week:20,ex:'When does the train leave?',ex_ru:'Когда отходит поезд?',img:'when,time,schedule'},
+  {id:194,w:'how',ru:'как',e:'🤔',ipa:'/haʊ/',cat:'Вопросы',week:20,ex:'How are you today?',ex_ru:'Как вы сегодня?',img:'how,thinking,question'},
+  {id:195,w:'who',ru:'кто',e:'🙋',ipa:'/huː/',cat:'Вопросы',week:20,ex:'Who are you?',ex_ru:'Кто вы?',img:'who,person,identity'},
+  {id:196,w:'why',ru:'почему',e:'🤷',ipa:'/waɪ/',cat:'Вопросы',week:20,ex:'Why are you late?',ex_ru:'Почему вы опоздали?',img:'why,question,reason'},
+  {id:197,w:'much',ru:'много',e:'📦',ipa:'/mʌtʃ/',cat:'Вопросы',week:20,ex:'How much is this?',ex_ru:'Сколько это стоит?',img:'much,quantity,amount'},
+  {id:198,w:'name',ru:'имя',e:'🪪',ipa:'/neɪm/',cat:'Вопросы',week:20,ex:'My name is Alex.',ex_ru:'Меня зовут Алекс.',img:'name,identity,person'},
+  {id:199,w:'speak',ru:'говорить (язык)',e:'💬',ipa:'/spiːk/',cat:'Вопросы',week:20,ex:'Do you speak English?',ex_ru:'Вы говорите по-английски?',img:'speaking,language,communication'},
+  {id:200,w:'repeat',ru:'повторить',e:'🔄',ipa:'/rɪˈpiːt/',cat:'Вопросы',week:20,ex:'Please repeat that.',ex_ru:'Пожалуйста, повторите это.',img:'repeat,loop,again'},
+];
+
+// ==================== SRS (SM-2) ALGORITHM ====================
+function sm2(card, quality) {
+  // quality: 0=wrong, 1=hard, 2=ok, 3=easy
+  let { interval, repetitions, easeFactor } = card;
+  if (quality < 1) {
+    repetitions = 0;
+    interval = 1;
+  } else {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 3;
+    else interval = Math.round(interval * easeFactor);
+    repetitions++;
+    easeFactor = Math.max(1.3, easeFactor + 0.1 - (3 - quality) * (0.08 + (3 - quality) * 0.02));
+  }
+  const nextReview = new Date();
+  nextReview.setDate(nextReview.getDate() + interval);
+  return { interval, repetitions, easeFactor, nextReview: nextReview.toISOString() };
+}
+
+// ==================== STATE & STORAGE ====================
+const DEFAULT_STATE = {
+  xp: 0, streak: 0, lastStudyDate: null,
+  totalDays: 1, learnedWordIds: [],
+  cardData: {}, // wordId -> {interval, repetitions, easeFactor, nextReview}
+  apiKey: '',
+  chatHistory: []
+};
+
+let S = loadState();
+
+function loadState() {
+  try { return { ...DEFAULT_STATE, ...JSON.parse(localStorage.getItem('eng_ai_v2') || '{}') }; }
+  catch { return { ...DEFAULT_STATE }; }
+}
+
+function saveState() { localStorage.setItem('eng_ai_v2', JSON.stringify(S)); }
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  if (S.lastStudyDate !== today) {
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    if (S.lastStudyDate === yesterday.toDateString()) S.streak++;
+    else if (S.lastStudyDate !== today) S.streak = 1;
+    S.lastStudyDate = today;
+    saveState();
+  }
+}
+
+// ==================== LESSON ENGINE ====================
+function getWeekForDay(day) { return Math.ceil(day / 7); }
+
+function getWordsForDay(day) {
+  const week = getWeekForDay(day);
+  return VOCAB.filter(w => w.week === week).slice(0, 10);
+}
+
+function getDueReviewCards() {
+  const now = new Date();
+  return S.learnedWordIds
+    .filter(id => {
+      const cd = S.cardData[id];
+      if (!cd) return false;
+      return new Date(cd.nextReview) <= now;
+    })
+    .map(id => VOCAB.find(w => w.id === id))
+    .filter(Boolean);
+}
+
+function getNewWordsToday() {
+  const day = S.totalDays;
+  const week = getWeekForDay(day);
+  const weekWords = VOCAB.filter(w => w.week === week);
+  return weekWords.filter(w => !S.learnedWordIds.includes(w.id));
+}
+
+function markWordLearned(wordId) {
+  if (!S.learnedWordIds.includes(wordId)) {
+    S.learnedWordIds.push(wordId);
+    S.cardData[wordId] = { interval: 1, repetitions: 0, easeFactor: 2.5, nextReview: new Date().toISOString() };
+    saveState();
+  }
+}
+
+function updateCardSRS(wordId, quality) {
+  const cd = S.cardData[wordId] || { interval: 1, repetitions: 0, easeFactor: 2.5 };
+  S.cardData[wordId] = sm2(cd, quality);
+  saveState();
+}
+
+// ==================== PRONUNCIATION ====================
+function speak(text, rate = 0.85) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = rate;
+  const voices = window.speechSynthesis.getVoices();
+  const en = voices.find(v => v.lang.startsWith('en-') && v.name.includes('Female'))
+          || voices.find(v => v.lang.startsWith('en-'));
+  if (en) u.voice = en;
+  window.speechSynthesis.speak(u);
+}
+
+// Preload voices
+if (window.speechSynthesis) window.speechSynthesis.getVoices();
+window.speechSynthesis?.addEventListener('voiceschanged', () => window.speechSynthesis.getVoices());
+
+// ==================== SPEECH RECOGNITION ====================
+let recognition = null;
+let isListening = false;
+
+function initRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return null;
+  const r = new SpeechRecognition();
+  r.lang = 'en-US'; r.continuous = false; r.interimResults = true;
+  r.onstart = () => {
+    showToast('🎤 Говорите по-английски...');
+  };
+  r.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const inp = document.getElementById('chat-input');
+    if (inp) inp.value = final || interim;
+    if (final) { stopMic(); setTimeout(() => sendChat(), 300); }
+  };
+  r.onend = () => stopMic();
+  r.onerror = (e) => {
+    stopMic();
+    const msgs = {
+      'not-allowed': '❌ Разрешите доступ к микрофону в браузере',
+      'no-speech': '🔇 Речь не обнаружена. Говорите громче.',
+      'network': '🌐 Ошибка сети. Проверьте интернет.',
+      'audio-capture': '🎙️ Микрофон не найден.',
+    };
+    showToast(msgs[e.error] || '❌ Ошибка: ' + e.error);
+  };
+  return r;
+}
+
+function toggleMic() {
+  if (isListening) { stopMic(); return; }
+  // Проверка поддержки
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('❌ Ваш браузер не поддерживает микрофон. Используйте Chrome.');
+    return;
+  }
+  // Проверка HTTPS
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    showToast('❌ Микрофон требует HTTPS. Разместите сайт на сервере с SSL.');
+    return;
+  }
+  if (!recognition) recognition = initRecognition();
+  try {
+    recognition.start();
+    isListening = true;
+    const btn = document.getElementById('mic-btn');
+    if (btn) { btn.classList.add('listening'); btn.textContent = '🔴'; }
+  } catch(e) {
+    showToast('❌ Не удалось запустить микрофон: ' + e.message);
+    stopMic();
+  }
+}
+
+function stopMic() {
+  if (recognition) try { recognition.stop(); } catch(e){}
+  isListening = false;
+  const btn = document.getElementById('mic-btn');
+  if (btn) { btn.classList.remove('listening'); btn.textContent = '🎤'; }
+}
+
+// ==================== IMAGE LOADING ====================
+function makeImgUrl(query) {
+  const q = encodeURIComponent(query.split(',')[0]);
+  return `https://source.unsplash.com/featured/340x180/?${q}`;
+}
+
+function wordCard(word, showTranslation = true) {
+  const imgUrl = makeImgUrl(word.img);
+  return `
+    <div class="word-card">
+      <div class="category-tag">${word.cat} • Неделя ${word.week}</div>
+      <img class="word-img" src="${imgUrl}" alt="${word.w}"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="emoji-fallback" style="display:none">${word.e}</span>
+      <div class="english-word">${word.w}</div>
+      <div class="ipa">${word.ipa}</div>
+      <button class="sound-btn" onclick="speak('${word.w.replace(/'/g,"\\'")}')">🔊</button>
+      ${showTranslation ? `<div class="russian">${word.ru}</div>` : ''}
+      <div class="example">
+        <div class="en">${word.ex}</div>
+        <div class="ru">${word.ex_ru}</div>
+      </div>
+    </div>`;
+}
+
+// ==================== EXERCISES ====================
+function getRandomWrong(correct, count = 3) {
+  const others = VOCAB.filter(w => w.id !== correct.id);
+  const shuffled = others.sort(() => Math.random() - .5);
+  return shuffled.slice(0, count);
+}
+
+function shuffleArray(arr) { return [...arr].sort(() => Math.random() - .5); }
+
+// Exercise: multiple choice (see English → pick Russian)
+function exerciseChoice(word, onAnswer) {
+  const wrongs = getRandomWrong(word, 3);
+  const options = shuffleArray([word, ...wrongs]);
+  const id = 'ex_' + Date.now();
+
+  return {
+    html: `
+      <div class="word-card" style="margin-bottom:16px">
+        <div class="category-tag">${word.cat}</div>
+        <img class="word-img" src="${makeImgUrl(word.img)}" alt="${word.w}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="emoji-fallback" style="display:none">${word.e}</span>
+        <div class="english-word">${word.w}</div>
+        <div class="ipa">${word.ipa}</div>
+        <button class="sound-btn" onclick="speak('${word.w.replace(/'/g,"\\'")}')">🔊</button>
+      </div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:10px">Выбери перевод:</p>
+      <div class="choices" id="${id}">
+        ${options.map(o => `
+          <button class="choice-btn" onclick="checkChoice('${id}','${o.id}','${word.id}', this, ${JSON.stringify(onAnswer).replace(/"/g,"'")})">
+            ${o.ru}
+          </button>`).join('')}
+      </div>
+      <div id="${id}_feedback"></div>`,
+    word
+  };
+}
+
+function checkChoice(containerId, selectedId, correctId, btn, cb) {
+  const container = document.getElementById(containerId);
+  const buttons = container.querySelectorAll('.choice-btn');
+  buttons.forEach(b => b.disabled = true);
+
+  const correct = selectedId == correctId;
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    buttons.forEach(b => { if (b.onclick?.toString().includes(`'${correctId}'`)) b.classList.add('correct'); });
+  }
+
+  const fb = document.getElementById(containerId + '_feedback');
+  if (correct) {
+    fb.innerHTML = `<div class="feedback correct">✅ Правильно! +10 XP</div><button class="next-btn" onclick="lessonNext()">Продолжить →</button>`;
+    S.xp += 10; saveState();
+    speak(VOCAB.find(w => w.id == correctId)?.w || '');
+  } else {
+    fb.innerHTML = `<div class="feedback wrong">❌ Неправильно. Правильный ответ: ${VOCAB.find(w=>w.id==correctId)?.ru}</div><button class="next-btn" onclick="lessonNext()">Продолжить →</button>`;
+  }
+  if (typeof cb === 'function') cb(correct);
+}
+
+// Exercise: type the word
+function exerciseType(word) {
+  return {
+    html: `
+      <div class="word-card" style="margin-bottom:16px">
+        <div class="category-tag">${word.cat}</div>
+        <img class="word-img" src="${makeImgUrl(word.img)}" alt="${word.w}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="emoji-fallback" style="display:none">${word.e}</span>
+        <div style="font-size:28px;font-weight:900;color:var(--accent2);margin:8px 0">${word.ru}</div>
+        <div style="font-size:13px;color:var(--muted)">${word.ex_ru}</div>
+      </div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:8px">Напишите по-английски:</p>
+      <div class="type-wrap">
+        <input class="type-input" id="type_input" placeholder="Введите слово..."
+               onkeydown="if(event.key==='Enter')checkType('${word.w}','${word.id}')">
+        <button class="check-btn" onclick="checkType('${word.w}','${word.id}')">Проверить</button>
+      </div>
+      <div id="type_feedback"></div>`,
+    word
+  };
+}
+
+function checkType(correct, wordId) {
+  const inp = document.getElementById('type_input');
+  const val = inp.value.trim().toLowerCase();
+  const isCorrect = val === correct.toLowerCase();
+  inp.classList.add(isCorrect ? 'correct' : 'wrong');
+  inp.disabled = true;
+  document.querySelector('.check-btn').disabled = true;
+
+  const fb = document.getElementById('type_feedback');
+  if (isCorrect) {
+    fb.innerHTML = `<div class="feedback correct">✅ Отлично! +15 XP</div><button class="next-btn" onclick="lessonNext()">Продолжить →</button>`;
+    S.xp += 15; saveState();
+    speak(correct);
+  } else {
+    fb.innerHTML = `<div class="feedback wrong">❌ Правильно: <b>${correct}</b></div><button class="next-btn" onclick="lessonNext()">Продолжить →</button>`;
+    updateCardSRS(parseInt(wordId), 0);
+  }
+}
+
+// ==================== LESSON FLOW ====================
+let lessonQueue = [];
+let lessonIdx = 0;
+let lessonMode = 'new'; // 'new' | 'review'
+let sessionCorrect = 0;
+let sessionTotal = 0;
+
+function startLesson() {
+  updateStreak();
+  const newWords = getNewWordsToday();
+  lessonMode = 'new';
+
+  if (newWords.length === 0) {
+    const due = getDueReviewCards();
+    if (due.length > 0) { startReview(); return; }
+    document.getElementById('lesson-content').innerHTML = `
+      <div class="results">
+        <div class="trophy">🎓</div>
+        <h2>Все слова этой недели выучены!</h2>
+        <p>Переходи на вкладку Повтор для закрепления</p>
+        <button class="next-btn" onclick="showScreen('review')" style="margin-top:20px">Перейти к повторению</button>
+      </div>`;
+    return;
+  }
+
+  // Build queue: flash card then exercise for each word
+  lessonQueue = [];
+  newWords.forEach(word => {
+    lessonQueue.push({ type: 'flash', word });
+    lessonQueue.push({ type: Math.random() > .5 ? 'choice' : 'type', word });
+  });
+
+  lessonIdx = 0; sessionCorrect = 0; sessionTotal = 0;
+  renderLessonStep();
+}
+
+function startReview() {
+  lessonMode = 'review';
+  const due = getDueReviewCards();
+  if (due.length === 0) {
+    document.getElementById('review-content').innerHTML = `
+      <div class="results">
+        <div class="trophy">🌟</div>
+        <h2>Нет слов для повторения</h2>
+        <p>Возвращайтесь позже или начните новый урок!</p>
+        <button class="next-btn" onclick="showScreen('lesson')" style="margin-top:20px">Новый урок</button>
+      </div>`;
+    return;
+  }
+
+  lessonQueue = [];
+  due.forEach(word => {
+    lessonQueue.push({ type: Math.random() > .5 ? 'choice' : 'type', word });
+  });
+  lessonIdx = 0; sessionCorrect = 0; sessionTotal = sessionTotal||0;
+  renderReviewStep();
+}
+
+function renderLessonStep() {
+  if (lessonIdx >= lessonQueue.length) { showLessonResults('lesson'); return; }
+  const step = lessonQueue[lessonIdx];
+  const total = lessonQueue.length;
+  const pct = Math.round((lessonIdx / total) * 100);
+  const header = `<div class="lesson-header">
+    <span class="lesson-prog">${lessonIdx}/${total}</span>
+    <div class="lesson-prog-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <span style="font-size:13px;color:var(--muted)">📚 Урок</span>
+  </div>`;
+
+  let content = '';
+  if (step.type === 'flash') {
+    content = wordCard(step.word);
+    content += `<button class="next-btn" onclick="lessonNext()">Я запомнил →</button>`;
+    markWordLearned(step.word.id);
+    speak(step.word.w);
+  } else if (step.type === 'choice') {
+    content = exerciseChoice(step.word, (ok) => { if(ok) sessionCorrect++; sessionTotal++; }).html;
+  } else {
+    content = exerciseType(step.word).html;
+    sessionTotal++;
+  }
+  document.getElementById('lesson-content').innerHTML = header + content;
+}
+
+function renderReviewStep() {
+  if (lessonIdx >= lessonQueue.length) { showLessonResults('review'); return; }
+  const step = lessonQueue[lessonIdx];
+  const total = lessonQueue.length;
+  const pct = Math.round((lessonIdx / total) * 100);
+  const header = `<div class="lesson-header">
+    <span class="lesson-prog">${lessonIdx}/${total}</span>
+    <div class="lesson-prog-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <span style="font-size:13px;color:var(--accent2)">🔁 Повтор</span>
+  </div>`;
+
+  let content = step.type === 'choice'
+    ? exerciseChoice(step.word, (ok) => { updateCardSRS(step.word.id, ok ? 2 : 0); if(ok)sessionCorrect++; sessionTotal++; }).html
+    : exerciseType(step.word).html;
+
+  document.getElementById('review-content').innerHTML = header + content;
+}
+
+function lessonNext() {
+  lessonIdx++;
+  if (lessonMode === 'review') renderReviewStep();
+  else renderLessonStep();
+}
+
+function showLessonResults(mode) {
+  S.xp += 20; S.totalDays = Math.max(S.totalDays, S.totalDays);
+  saveState();
+  updateHomeScreen();
+  const pct = sessionTotal > 0 ? Math.round((sessionCorrect / sessionTotal) * 100) : 100;
+  const trophy = pct >= 80 ? '🏆' : pct >= 50 ? '🎯' : '💪';
+  const msg = pct >= 80 ? 'Отличный результат!' : pct >= 50 ? 'Хороший прогресс!' : 'Продолжайте практиковаться!';
+  const html = `<div class="results">
+    <div class="trophy">${trophy}</div>
+    <h2>${msg}</h2>
+    <div class="score">${pct}%</div>
+    <p>${sessionCorrect} из ${sessionTotal} правильных ответов</p>
+    <div class="xp-badge">+${S.xp} XP суммарно ✨</div>
+    <button class="next-btn" onclick="showScreen('home')" style="margin-top:20px">На главную</button>
+    <button class="big-btn btn-secondary" onclick="showScreen('chat')" style="margin-top:10px">💬 Поговорить с AI</button>
+  </div>`;
+  document.getElementById(mode === 'review' ? 'review-content' : 'lesson-content').innerHTML = html;
+}
+
+// ==================== AI CHAT ====================
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) return;
+  S.apiKey = key; saveState();
+  initChatScreen();
+}
+
+function initChatScreen() {
+  if (!S.apiKey) {
+    document.getElementById('chat-api-setup').style.display = 'block';
+    document.getElementById('chat-interface').style.display = 'none';
+    return;
+  }
+  document.getElementById('chat-api-setup').style.display = 'none';
+  document.getElementById('chat-interface').style.display = 'block';
+  updateWordsHint();
+  if (S.chatHistory.length === 0) addAiMessage("Hello! I am Emma, your English teacher. 😊 How are you today?", "Привет! Я Эмма, твой учитель английского. Как дела?");
+  else renderChatHistory();
+}
+
+function updateWordsHint() {
+  const learned = S.learnedWordIds.map(id => VOCAB.find(w => w.id === id)?.w).filter(Boolean);
+  const hint = learned.length > 0
+    ? `📚 Вы знаете ${learned.length} слов: ${learned.slice(-8).join(', ')}${learned.length > 8 ? '...' : ''}`
+    : '📚 Сначала пройдите урок, чтобы выучить слова';
+  document.getElementById('words-hint').textContent = hint;
+}
+
+function addAiMessage(text, translation) {
+  S.chatHistory.push({ role: 'ai', text, translation });
+  saveState();
+  renderChatHistory();
+}
+
+function addUserMessage(text) {
+  S.chatHistory.push({ role: 'user', text });
+  saveState();
+  renderChatHistory();
+}
+
+function renderChatHistory() {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+  container.innerHTML = S.chatHistory.map(m => {
+    if (m.role === 'ai') return `<div class="msg ai">${m.text}${m.translation ? `<div class="translation">${m.translation}</div>` : ''}</div>`;
+    return `<div class="msg user">${m.text}</div>`;
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  addUserMessage(text);
+
+  // Loading indicator
+  const container = document.getElementById('chat-messages');
+  const loadingId = 'loading_' + Date.now();
+  container.innerHTML += `<div class="msg ai" id="${loadingId}"><span class="loading-dots">Печатаю</span></div>`;
+  container.scrollTop = container.scrollHeight;
+
+  const learnedWords = S.learnedWordIds.map(id => VOCAB.find(w => w.id === id)?.w).filter(Boolean);
+
+  const systemPrompt = `You are Emma, a friendly English teacher for Russian beginners.
+The student knows these English words: ${learnedWords.join(', ')}.
+STRICT RULES:
+- Use ONLY words from the student's vocabulary list above + basic grammar words (is, are, am, the, a, an, I, you, he, she, it, we, they, my, your, this, that, and, but, or, not, do, does, did, can, will, very, too, also, in, on, at, to, for, with, from, of, by)
+- Keep sentences SHORT (max 8 words)
+- If student makes an English error, kindly correct them (example: "Good try! We say: 'I am happy' not 'I is happy' 😊")
+- Add a Russian translation in parentheses for your response, e.g. "Hello! (Привет!)"
+- Ask simple questions to continue conversation
+- Be encouraging and use emojis`;
+
+  try {
+    const messages = S.chatHistory
+      .filter(m => m.role !== 'ai' || !m.isSystem)
+      .slice(-10)
+      .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': S.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 250,
+        system: systemPrompt,
+        messages
+      })
+    });
+
+    document.getElementById(loadingId)?.remove();
+
+    if (!res.ok) {
+      const err = await res.json();
+      addAiMessage('⚠️ Ошибка API: ' + (err.error?.message || 'Проверьте ключ'), '');
+      return;
+    }
+
+    const data = await res.json();
+    const reply = data.content[0].text;
+    // Extract Russian translation if in parentheses
+    const ruMatch = reply.match(/\(([^)]+)\)/);
+    const enText = reply.replace(/\([^)]+\)/g, '').trim();
+    const ruText = ruMatch ? ruMatch[1] : '';
+    addAiMessage(enText, ruText);
+    speak(enText.replace(/[^a-zA-Z\s']/g, ''));
+    S.xp += 5; saveState();
+
+  } catch(e) {
+    document.getElementById(loadingId)?.remove();
+    addAiMessage('⚠️ Ошибка соединения. Проверьте интернет.', '');
+  }
+}
+
+// ==================== HOME SCREEN ====================
+const TIPS = [
+  '🧠 <strong>Интервальное повторение</strong> — самый эффективный метод. Слова появляются в нужный момент.',
+  '🗣️ <strong>Говорите вслух</strong> при каждом новом слове — это ускоряет запоминание в 3 раза.',
+  '📸 <strong>Картинка + слово</strong> — визуальная ассоциация запоминается в 2 раза быстрее текста.',
+  '💬 <strong>Практикуйте с AI</strong> каждый день — даже 5 минут разговора даёт огромный прогресс.',
+  '🔥 <strong>Серия дней</strong> — главный секрет успеха. Не пропускайте ни одного дня!',
+  '⏰ <strong>25 минут в день</strong> лучше, чем 3 часа раз в неделю.',
+  '🎯 <strong>300 слов</strong> — этого достаточно для базового разговора. Вы на правильном пути!',
+];
+
+function updateHomeScreen() {
+  document.getElementById('stat-words').textContent = S.learnedWordIds.length;
+  document.getElementById('stat-xp').textContent = S.xp;
+  document.getElementById('stat-day').textContent = S.totalDays;
+  document.getElementById('streak-text').textContent = `${S.streak} дней подряд`;
+
+  const level = Math.floor(S.xp / 200) + 1;
+  document.getElementById('level-badge').textContent = `Уровень ${level}`;
+
+  const pct = Math.min(100, Math.round((S.learnedWordIds.length / 200) * 100));
+  document.getElementById('total-progress').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${S.learnedWordIds.length} / 200 слов до разговорного уровня`;
+
+  const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+  document.getElementById('daily-tip').innerHTML = '💡 ' + tip;
+
+  const due = getDueReviewCards().length;
+  const newW = getNewWordsToday().length;
+  let actionHtml = '';
+
+  if (newW > 0) {
+    actionHtml += `<button class="big-btn btn-primary" onclick="showScreen('lesson')">
+      📚 Новый урок — ${newW} слов (Неделя ${getWeekForDay(S.totalDays)})
+    </button>`;
+  }
+  if (due > 0) {
+    actionHtml += `<button class="big-btn btn-secondary" onclick="showScreen('review')">
+      🔁 Повторение — ${due} слов готовы
+    </button>`;
+  }
+  if (newW === 0 && due === 0) {
+    actionHtml = `<button class="big-btn btn-secondary" onclick="nextDay()">
+      ✅ Все задания сделаны! Следующий день →
+    </button>`;
+  }
+  actionHtml += `<button class="big-btn btn-secondary" onclick="showScreen('chat')">
+    💬 Поговорить с AI учителем
+  </button>`;
+
+  document.getElementById('home-action').innerHTML = actionHtml;
+}
+
+function nextDay() {
+  S.totalDays++;
+  saveState();
+  updateHomeScreen();
+  showToast('День ' + S.totalDays + ' начался! 🚀');
+}
+
+// ==================== PROGRESS SCREEN ====================
+function renderProgress() {
+  const totalWeeks = 12;
+  const currentWeek = getWeekForDay(S.totalDays);
+  let grid = '';
+  for (let w = 1; w <= totalWeeks; w++) {
+    const weekWords = VOCAB.filter(v => v.week === w);
+    const learnedCount = weekWords.filter(v => S.learnedWordIds.includes(v.id)).length;
+    const done = learnedCount === weekWords.length && weekWords.length > 0;
+    const current = w === currentWeek;
+    const cls = done ? 'done' : current ? 'current' : '';
+    grid += `<div class="week-dot ${cls}" title="Неделя ${w}: ${learnedCount}/${weekWords.length}">
+      ${done ? '✓' : w}
+    </div>`;
+  }
+  document.getElementById('week-grid').innerHTML = grid;
+
+  const learned = S.learnedWordIds.map(id => VOCAB.find(w => w.id === id)).filter(Boolean);
+  const wordsList = VOCAB.slice(0, 80).map(w => {
+    const isLearned = S.learnedWordIds.includes(w.id);
+    return `<span class="word-badge ${isLearned ? 'learned' : ''}">${w.w}</span>`;
+  }).join('');
+  document.getElementById('learned-words-list').innerHTML = wordsList;
+}
+
+// ==================== NAVIGATION ====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+
+  if (id === 'home') updateHomeScreen();
+  if (id === 'lesson') {
+    if (!document.getElementById('lesson-content').innerHTML) startLesson();
+  }
+  if (id === 'review') {
+    document.getElementById('review-content').innerHTML = '';
+    startReview();
+  }
+  if (id === 'chat') initChatScreen();
+  if (id === 'progress') renderProgress();
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ==================== INIT ====================
+updateStreak();
+updateHomeScreen();
+</script>
+</body>
+</html>
